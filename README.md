@@ -6,8 +6,7 @@ TODO: Add some sensors and worlds to illustrate SLAM
 
 To run the Gazebo Rviz demo log into the Docker container terminal and run:
 ```
-ln -s /workspace/packages/msbot/ /workspace/msbot_ws/src/
-cd /workspace/msbot_ws/
+cd /workspace/ros2_ws/
 colcon build --symlink-install
 source install/setup.bash
 ros2 launch msbot_bringup sim.launch.py

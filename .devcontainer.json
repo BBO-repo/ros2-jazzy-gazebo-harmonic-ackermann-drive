@@ -1,12 +1,12 @@
 {
-	"name": "multi-sensor-bot",
+	"name": "ackerdrive",
 	"build": {
 		"dockerfile": "./Dockerfile",
 		"context": ".",
 		"args": {}
 	},
 	"runArgs": [
-		"--name=ros2-jazzy-multi-sensor-bot",
+		"--name=ackerdrive",
 		"--net=host",
 		"-e", "DISPLAY=${env:DISPLAY}",
 		"-e", "QT_X11_NO_MITSHM=1",

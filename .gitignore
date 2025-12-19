@@ -1,6 +1,6 @@
-devel/
-logs/
-build/
+**/log/
+**/build/
+**/install/
 bin/
 lib/
 msg_gen/
@@ -51,6 +51,5 @@ qtcreator-*
 CATKIN_IGNORE
 
 # ROS workspace
-msbot_ws/
 core
 notes
