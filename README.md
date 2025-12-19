@@ -1,22 +1,29 @@
-# ros2-jazzy-multi-sensor-robot
-A ROS 2 Jazzy package for simulate ackerdrive robot.
-TODO: Add some sensors and worlds to illustrate SLAM
+# ROS2 Jazzy and Gazebo Harmonic simulation of 4 wheeled ackermann drive robot vehicle
+A ROS 2 Jazzy package for simulate a four wheel ackermann drive robot within Gazebo Harmonic simulator.<br>
+
+The project works out of the box in a docker container built with the provided Dockerfile.<br>
+This package is intended to be use as a template to build some more sophisticated vehicle robot with diverses sensor added on top of it.<br><br>
+
 
 ![gazebo-rviz-acker-drive](assets/gazebo-rviz-acker-drive.gif)
 
-To run the Gazebo Rviz demo log into the Docker container terminal and run:
-```
+<br>
+
+To run the Gazebo Rviz demo, just log into the docker container built with the `Dockerfile` terminal and run:
+```sh
 cd /workspace/ros2_ws/
 colcon build --symlink-install
 source install/setup.bash
 ros2 launch ackermann-vehicle-bringup ackermann-vehicle-spawn.launch.py
 ```
-To move the robot, make sure Gazebo is running by pressing the play button in Gazebo opened GUI and from another terminal in container run:
-```
+[!NOTE] To move the robot, make sure Gazebo is running by pressing the play button in Gazebo opened GUI.<br>
+
+In a terminal inside the container, just run:
+```sh
 gz topic -t "/cmd_vel" -m gz.msgs.Twist -p "linear: {x: 0.5}, angular: {z: 0.05}"
 ```
 
-Note that you could also send message directly from ros2
-```
+Note, that you could also send message directly from ros2:
+```sh
 ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.1}}"
 ```
