@@ -1,8 +1,8 @@
 # ROS2 Jazzy and Gazebo Harmonic simulation of 4 wheeled ackermann drive robot vehicle
-A ROS 2 Jazzy package for simulate a four wheel ackermann drive robot within Gazebo Harmonic simulator.<br>
+A ROS 2 Jazzy package for simulate a four wheeled ackermann drive robot within Gazebo Harmonic simulator.<br>
 
 The project works out of the box in a docker container built with the provided Dockerfile.<br>
-This package is intended to be use as a template to build some more sophisticated vehicle robot with diverses sensor added on top of it.<br><br>
+This package is intended to be used as a template to build some more sophisticated vehicle robots with diverses sensors added on top of it.<br><br>
 
 
 ![gazebo-rviz-acker-drive](assets/gazebo-rviz-acker-drive.gif)
