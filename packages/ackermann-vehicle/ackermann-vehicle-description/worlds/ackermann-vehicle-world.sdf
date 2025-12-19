@@ -23,7 +23,7 @@
         name="gz::sim::systems::Imu">
     </plugin>
 
-    <light name="sun2" type="directional">
+    <light name="sun1" type="directional">
       <cast_shadows>true</cast_shadows>
       <pose>0 0 10 0 0 0</pose>
       <diffuse>0.8 0.8 0.8 1</diffuse>

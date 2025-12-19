@@ -20,7 +20,7 @@ def generate_launch_description():
     
 
     # Load the SDF file from "description" package
-    sdf_file  =  os.path.join(pkg_project_description, 'models', 'ackermann-vehicle', 'model-basic.sdf')
+    sdf_file  =  os.path.join(pkg_project_description, 'models', 'ackermann-vehicle', 'model.sdf')
     with open(sdf_file, 'r') as infp:
         robot_desc = infp.read()
 
