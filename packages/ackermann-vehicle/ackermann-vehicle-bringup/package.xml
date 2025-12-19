@@ -4,7 +4,7 @@
   <name>ackermann-vehicle-bringup</name>
   <version>0.0.0</version>
   <description>Contains launch files for the ackermann vehicle project</description>
-  <maintainer email="bbo@repo">BBO</maintainer>
+  <maintainer email="bbo@repo.com">BBO</maintainer>
   <license>Apache 2.0</license>
   <author>BBO</author>
 
