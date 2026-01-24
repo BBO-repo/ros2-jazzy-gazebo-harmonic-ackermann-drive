@@ -1,13 +1,38 @@
 <sdf version="1.8">
 
-  <model name='ackermann-vehicle'>
-    <!-- <pose>0 2 0.325 0 -0 0</pose> -->
+  <!--
+    Ackermann Steering Vehicle Model
+    =================================
+    This model represents a 4-wheeled vehicle with Ackermann steering geometry.
+    The vehicle consists of:
+    - A base link (chassis)
+    - Four wheels (front left, front right, rear left, rear right)
+    - Two steering links for the front wheels
+    - Joints connecting wheels to steering links and steering links to base
+    - Plugins for steering control, odometry, and state publishing
+    
+    The front wheels can steer independently to achieve Ackermann geometry,
+    while the rear wheels are fixed and provide propulsion.
+  -->
+  <model name='ackermann-vehicle'>    
+    <!-- Model properties -->
     <self_collide>false</self_collide>
     <static>false</static>
 
+    <!--
+      Base Link (Chassis)
+      ===================
+      The main body of the vehicle. This link serves as the root of the kinematic tree.
+      All other links (wheels, steering) are connected to this base link.
+      Dimensions: ~2.01m x 1.0m x 0.57m (length x width x height)
+    -->
     <link name='base_link'>
+      <!-- Gazebo frame identifier for ROS integration -->
       <gz_frame_id>ackermann-vehicle/base_link</gz_frame_id>
+      <!-- Position offset: slightly forward and elevated to center of mass -->
       <pose>-0.151427 -0 0.175 0 -0 0</pose>
+      
+      <!-- Inertial properties: mass and moment of inertia tensor -->
       <inertial>
         <mass>1.14395</mass>
         <inertia>
@@ -19,7 +44,9 @@
           <izz>0.481014</izz>
         </inertia>
       </inertial>
-      <visual name='visual'>
+      
+      <!-- Visual representation: blue semi-transparent box -->
+      <visual name='base_link_visual'>
         <geometry>
           <box>
             <size>2.01142 1 0.568726</size>
@@ -31,7 +58,9 @@
           <specular>0.0 0.0 1.0 1</specular>
         </material>
       </visual>
-      <collision name='collision'>
+      
+      <!-- Collision geometry: matches visual for physics simulation -->
+      <collision name='base_link_collision'>
         <geometry>
           <box>
             <size>2.01142 1 0.568726</size>
@@ -40,8 +69,17 @@
       </collision>
     </link>
 
+    <!--
+      Front Left Wheel Link
+      =====================
+      The left front wheel of the vehicle. This wheel can both rotate (for propulsion)
+      and steer (via the steering link). Positioned at the front-left corner.
+    -->
     <link name='front_left_wheel_link'>
+      <!-- Position: front-left, rotated 90 degrees to align wheel horizontally -->
       <pose>0.554283 0.625029 -0.025 -1.5707 0 0</pose>
+      
+      <!-- Inertial properties: wheel mass and inertia -->
       <inertial>
         <mass>2</mass>
         <inertia>
@@ -53,7 +91,9 @@
           <izz>0.125</izz>
         </inertia>
       </inertial>
-      <visual name='ackermann-vehicle/FrontLeftWheelVisual'>
+      
+      <!-- Visual: dark gray cylinder representing the wheel -->
+      <visual name='front_left_wheel_visual'>
         <geometry>
           <cylinder>
             <length>0.15</length>
@@ -66,7 +106,9 @@
           <specular>0.2 0.2 0.2 1</specular>
         </material>
       </visual>
-      <collision name='ackermann-vehicle/FrontLeftWheelCollision'>
+      
+      <!-- Collision: matches visual with friction properties for realistic wheel-ground interaction -->
+      <collision name='front_left_wheel_collision'>
         <geometry>
           <cylinder>
             <length>0.15</length>
@@ -75,11 +117,13 @@
         </geometry>
         <surface>
           <friction>
+            <!-- ODE physics engine friction parameters -->
             <ode>
               <mu>0.5</mu>
               <mu2>1.0</mu2>
               <fdir1>0 0 1</fdir1>
             </ode>
+            <!-- Bullet physics engine friction parameters -->
             <bullet>
               <friction>0.5</friction>
               <friction2>1</friction2>
@@ -90,8 +134,18 @@
       </collision>
     </link>
 
+    <!--
+      Front Left Wheel Steering Link
+      ===============================
+      Intermediate link that connects the front left wheel to the base link.
+      This link rotates around the vertical axis to provide steering capability.
+      The wheel is attached to this link, allowing it to steer while rotating.
+    -->
     <link name="front_left_wheel_steering_link">
+      <!-- Position: front-left, slightly elevated from wheel -->
       <pose>0.554283 0.5 0.02 0 0 0</pose>
+      
+      <!-- Inertial properties: lightweight steering mechanism -->
       <inertial>
         <mass>0.5</mass>
         <inertia>
@@ -100,7 +154,9 @@
           <izz>0.0153</izz>
         </inertia>
       </inertial>
-      <visual name="steering_link_visual">
+      
+      <!-- Visual: small white cylinder representing the steering pivot -->
+      <visual name="front_left_wheel_steering_link_visual">
         <pose>0 0 0 0 0 0</pose>
         <geometry>
           <cylinder>
@@ -115,11 +171,19 @@
       </visual>
     </link>
 
+    <!--
+      Front Left Wheel Joint
+      ======================
+      Revolute joint connecting the front left wheel to its steering link.
+      This joint allows the wheel to rotate continuously for propulsion.
+      Rotation axis: vertical (Z-axis)
+    -->
     <joint name='front_left_wheel_joint' type='revolute'>
       <parent>front_left_wheel_steering_link</parent>
       <child>front_left_wheel_link</child>
       <axis>
         <xyz>0 0 1</xyz>
+        <!-- Unlimited rotation for continuous wheel spinning -->
         <limit>
           <lower>-1.79769e+308</lower>
           <upper>1.79769e+308</upper>
@@ -128,6 +192,14 @@
       </axis>
     </joint>
 
+    <!--
+      Front Left Wheel Steering Joint
+      ================================
+      Revolute joint connecting the steering link to the base link.
+      This joint controls the steering angle of the front left wheel.
+      Rotation axis: vertical (Z-axis)
+      Limits: ±0.6 radians (~±34 degrees) with velocity and effort constraints
+    -->
     <joint name="front_left_wheel_steering_joint" type="revolute">
       <parent>base_link</parent>
       <child>front_left_wheel_steering_link</child>
@@ -143,8 +215,17 @@
       </axis>
     </joint>
 
+    <!--
+      Front Right Wheel Link
+      ======================
+      The right front wheel of the vehicle. This wheel can both rotate (for propulsion)
+      and steer (via the steering link). Positioned at the front-right corner.
+    -->
     <link name='front_right_wheel_link'>
+      <!-- Position: front-right, rotated 90 degrees to align wheel horizontally -->
       <pose>0.554283 -0.625029 -0.025 -1.5707 0 0</pose>
+      
+      <!-- Inertial properties: wheel mass and inertia -->
       <inertial>
         <mass>2</mass>
         <inertia>
@@ -156,7 +237,9 @@
           <izz>0.125</izz>
         </inertia>
       </inertial>
-      <visual name='ackermann-vehicle/FrontRightWheelVisual'>
+      
+      <!-- Visual: dark gray cylinder representing the wheel -->
+      <visual name='front_right_wheel_visual'>
         <geometry>
           <cylinder>
             <length>0.15</length>
@@ -169,7 +252,9 @@
           <specular>0.2 0.2 0.2 1</specular>
         </material>
       </visual>
-      <collision name='ackermann-vehicle/FrontRightWheelCollision'>
+      
+      <!-- Collision: matches visual with friction properties -->
+      <collision name='front_right_wheel_collision'>
         <geometry>
           <cylinder>
             <length>0.15</length>
@@ -193,8 +278,18 @@
       </collision>
     </link>
 
+    <!--
+      Front Right Wheel Steering Link
+      ================================
+      Intermediate link that connects the front right wheel to the base link.
+      This link rotates around the vertical axis to provide steering capability.
+      The wheel is attached to this link, allowing it to steer while rotating.
+    -->
     <link name="front_right_wheel_steering_link">
+      <!-- Position: front-right, slightly elevated from wheel -->
       <pose>0.554283 -0.5 0.02 0 0 0</pose>
+      
+      <!-- Inertial properties: lightweight steering mechanism -->
       <inertial>
         <mass>0.5</mass>
         <inertia>
@@ -203,7 +298,9 @@
           <izz>0.0153</izz>
         </inertia>
       </inertial>
-      <visual name="steering_link_visual">
+      
+      <!-- Visual: small white cylinder representing the steering pivot -->
+      <visual name="front_right_wheel_steering_link_visual">
         <pose>0 0 0 0 0 0</pose>
         <geometry>
           <cylinder>
@@ -218,12 +315,21 @@
       </visual>
     </link>
 
+    <!--
+      Front Right Wheel Joint
+      =======================
+      Revolute joint connecting the front right wheel to its steering link.
+      This joint allows the wheel to rotate continuously for propulsion.
+      Rotation axis: vertical (Z-axis)
+    -->
     <joint name='front_right_wheel_joint' type='revolute'>
       <parent>front_right_wheel_steering_link</parent>
       <child>front_right_wheel_link</child>
+      <!-- Optional pose relative to steering joint (commented out) -->
       <!-- <pose relative_to="front_right_wheel_steering_joint">0 0 0 0 0 0</pose> -->
       <axis>
         <xyz>0 0 1</xyz>
+        <!-- Unlimited rotation for continuous wheel spinning -->
         <limit>
           <lower>-1.79769e+308</lower>
           <upper>1.79769e+308</upper>
@@ -232,6 +338,14 @@
       </axis>
     </joint>
 
+    <!--
+      Front Right Wheel Steering Joint
+      =================================
+      Revolute joint connecting the steering link to the base link.
+      This joint controls the steering angle of the front right wheel.
+      Rotation axis: vertical (Z-axis)
+      Limits: ±0.6 radians (~±34 degrees) with velocity and effort constraints
+    -->
     <joint name="front_right_wheel_steering_joint" type="revolute">
       <parent>base_link</parent>
       <child>front_right_wheel_steering_link</child>
@@ -247,11 +361,19 @@
       </axis>
     </joint>
 
+    <!--
+      Rear Right Wheel Joint
+      ======================
+      Revolute joint connecting the rear right wheel directly to the base link.
+      Rear wheels are fixed (no steering) and only rotate for propulsion.
+      Rotation axis: vertical (Z-axis)
+    -->
     <joint name='rear_right_wheel_joint' type='revolute'>
       <parent>base_link</parent>
       <child>rear_right_wheel_link</child>
       <axis>
         <xyz>0 0 1</xyz>
+        <!-- Unlimited rotation for continuous wheel spinning -->
         <limit>
           <lower>-1.79769e+308</lower>
           <upper>1.79769e+308</upper>
@@ -260,11 +382,19 @@
       </axis>
     </joint>
 
+    <!--
+      Rear Left Wheel Joint
+      =====================
+      Revolute joint connecting the rear left wheel directly to the base link.
+      Rear wheels are fixed (no steering) and only rotate for propulsion.
+      Rotation axis: vertical (Z-axis)
+    -->
     <joint name='rear_left_wheel_joint' type='revolute'>
       <parent>base_link</parent>
       <child>rear_left_wheel_link</child>
       <axis>
         <xyz>0 0 1</xyz>
+        <!-- Unlimited rotation for continuous wheel spinning -->
         <limit>
           <lower>-1.79769e+308</lower>
           <upper>1.79769e+308</upper>
@@ -273,8 +403,17 @@
       </axis>
     </joint>
 
+    <!--
+      Rear Right Wheel Link
+      =====================
+      The right rear wheel of the vehicle. This wheel only rotates for propulsion
+      (no steering capability). Positioned at the rear-right corner.
+    -->
     <link name='rear_right_wheel_link'>
+      <!-- Position: rear-right, rotated 90 degrees to align wheel horizontally -->
       <pose>-0.957138 -0.625029 -0.025 -1.5707 0 0</pose>
+      
+      <!-- Inertial properties: wheel mass and inertia -->
       <inertial>
         <mass>2</mass>
         <inertia>
@@ -286,7 +425,9 @@
           <izz>0.125</izz>
         </inertia>
       </inertial>
-      <visual name='RearRightWheelVisual'>
+      
+      <!-- Visual: dark gray cylinder representing the wheel -->
+      <visual name='rear_right_wheel_visual'>
         <geometry>
           <cylinder>
             <length>0.15</length>
@@ -299,7 +440,10 @@
           <specular>0.2 0.2 0.2 1</specular>
         </material>
       </visual>
-      <collision name='RearRightWheelCollision'>
+      
+      <!-- Collision: matches visual with friction properties -->
+      <!-- Note: Higher rolling friction (0.5) compared to front wheels (0.1) -->
+      <collision name='rear_right_wheel_collision'>
         <geometry>
           <cylinder>
             <length>0.15</length>
@@ -323,8 +467,17 @@
       </collision>
     </link>
 
+    <!--
+      Rear Left Wheel Link
+      ====================
+      The left rear wheel of the vehicle. This wheel only rotates for propulsion
+      (no steering capability). Positioned at the rear-left corner.
+    -->
     <link name='rear_left_wheel_link'>
+      <!-- Position: rear-left, rotated 90 degrees to align wheel horizontally -->
       <pose>-0.957138 0.625029 -0.025 -1.5707 0 0</pose>
+      
+      <!-- Inertial properties: wheel mass and inertia -->
       <inertial>
         <mass>2</mass>
         <inertia>
@@ -336,7 +489,9 @@
           <izz>0.125</izz>
         </inertia>
       </inertial>
-      <visual name='RearLeftWheelVisual'>
+      
+      <!-- Visual: dark gray cylinder representing the wheel -->
+      <visual name='rear_left_wheel_visual'>
         <geometry>
           <cylinder>
             <length>0.15</length>
@@ -349,7 +504,10 @@
           <specular>0.2 0.2 0.2 1</specular>
         </material>
       </visual>
-      <collision name='RearLeftWheelCollision'>
+      
+      <!-- Collision: matches visual with friction properties -->
+      <!-- Note: Higher rolling friction (0.5) compared to front wheels (0.1) -->
+      <collision name='rear_left_wheel_collision'>
         <geometry>
           <cylinder>
             <length>0.15</length>
@@ -373,6 +531,28 @@
       </collision>
     </link>
 
+    <!--
+      Ackermann Steering Plugin
+      ==========================
+      Implements Ackermann steering geometry for the vehicle.
+      This plugin converts velocity commands (cmd_vel) into joint commands
+      for the wheels and steering joints, ensuring proper Ackermann geometry
+      where the inner wheel turns more than the outer wheel during turns.
+      
+      Parameters:
+      - left_joint: Joints for left-side wheels (front and rear)
+      - right_joint: Joints for right-side wheels (front and rear)
+      - left_steering_joint: Steering joint for left front wheel
+      - right_steering_joint: Steering joint for right front wheel
+      - kingpin_width: Distance between steering pivots (1.0m)
+      - steering_limit: Maximum steering angle in radians (0.5 rad ≈ 28.6°)
+      - wheel_base: Distance between front and rear axles (1.0m)
+      - wheel_separation: Distance between left and right wheels (1.25m)
+      - wheel_radius: Radius of the wheels (0.3m)
+      - min/max_velocity: Velocity limits in m/s (-1 to 1 m/s)
+      - min/max_acceleration: Acceleration limits in m/s² (-3 to 3 m/s²)
+      - topic: ROS topic for velocity commands (/cmd_vel)
+    -->
     <plugin
       filename="gz-sim-ackermann-steering-system"
       name="gz::sim::systems::AckermannSteering">
@@ -394,6 +574,18 @@
       <topic>/cmd_vel</topic>
     </plugin>
 
+    <!--
+      Pose Publisher Plugin
+      =====================
+      Publishes pose information for links and sensors to Gazebo topics.
+      This enables ROS-Gazebo bridge to access pose data for TF transforms.
+      
+      Parameters:
+      - publish_link_pose: Publish poses of all links (true)
+      - publish_sensor_pose: Publish poses of all sensors (true)
+      - publish_model_pose: Publish model pose (false)
+      - use_pose_vector_msg: Use Pose_V message type (true)
+    -->
     <plugin
       filename="gz-sim-pose-publisher-system"
       name="gz::sim::systems::PosePublisher">
@@ -403,6 +595,18 @@
       <use_pose_vector_msg>true</use_pose_vector_msg>
     </plugin>
 
+    <!--
+      Odometry Publisher Plugin
+      ==========================
+      Publishes odometry information for the vehicle.
+      This provides position, orientation, and velocity data for navigation.
+      
+      Parameters:
+      - odom_frame: Frame name for odometry (odom)
+      - robot_base_frame: Base frame of the robot (ackermann-vehicle)
+      - odom_topic: Topic name for odometry messages (odom)
+      - dimensions: Number of dimensions (3 for 3D)
+    -->
     <plugin
       filename="gz-sim-odometry-publisher-system"
       name="gz::sim::systems::OdometryPublisher">
@@ -412,6 +616,12 @@
       <dimensions>3</dimensions>
     </plugin>
 
+    <!--
+      Joint State Publisher Plugin
+      ============================
+      Publishes the state (position, velocity, effort) of all joints.
+      This enables ROS to monitor joint states for control and visualization.
+    -->
     <plugin
       filename="gz-sim-joint-state-publisher-system"
       name="gz::sim::systems::JointStatePublisher">
